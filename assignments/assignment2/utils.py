@@ -7,9 +7,23 @@ import random
 import scipy.sparse
 import sklearn.svm as svm
 
+# the width of the rescaled image
 w_size = 256
 
 def read_image(f):
+  """
+  Read the image at a certain directory regardless of the format and convert it into grey scale.
+  
+  Parameters
+  ----------
+  f : str
+    The directory of the image.
+  
+  Returns
+  -------
+  numpy.array
+    The array holding the greyscale image at f.
+  """
   img = mpimg.imread(f)
   t = img.shape
   factor = w_size / t[0]
@@ -18,8 +32,19 @@ def read_image(f):
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
   return img
             
-def show_image(data, label):
-  plt.imshow(data, interpolation='nearest')
+def show_image(img, label):
+  """
+  Print the image and show its label
+  
+  Parameters 
+  ----------
+  img : numpy.array
+    An array contains a single image.
+    
+  label : str
+    The label of img.
+  """
+  plt.imshow(img, interpolation='nearest')
   plt.title(label)
   plt.show()
 
@@ -60,7 +85,29 @@ class Dataset_old:
     self.train = list(set(range(len(self.data_X)))-set(self.test))
   
 class Dataset:
+  """
+  A class hold the dataset.  
+  """
   def __init__(self, repo, samples = 70, no_clutter = True, feature_function = None, pyramid = 0, verbose = False):
+    """
+    Parameters
+    ----------
+    repo : str
+      The directory of the raw dataset.
+      
+    samples : int
+      The number of samples to read for each class. (default 70)
+      
+    no_clutter : boolean
+      Whether not to read the clutter class. (default True)
+      
+    feature_function: function(image : numpy.array) -> feature : numpy.array
+      The function used to extract the features of an image. (default None)
+      None means directly read the image.
+    
+    pyramid : int
+      The depth of the spatial pyramid. default by 1.    
+    """
     # all training and testing data stored in data_X for better flexibility
     self.data_X = {}
     self.train_X = []
@@ -115,6 +162,15 @@ class Dataset:
       show_image(self.test_X[index], self.test_y[index])
   
   def generate_train_test_samples(self, train_number = 60):
+    """
+    Separate the samples into train set, validation set and test set.
+    The size of validation set and test set for each class is 5 by default.
+    
+    Parameters
+    ----------
+    train_number : int
+      Number of samples contained in the train set each class.
+    """
     for i, j in self.data_X.items():
       train_choices = np.random.choice(j.shape[0], train_number, replace = False)
       self.train_X.append(j[train_choices])
@@ -130,9 +186,31 @@ class Dataset:
       self.test_y.append(np.ones([len(not_choices)]) * i)
   
   def get_train_X(self):
+    """
+    Reture the train set.
+    """
     return self.train_X
   
   def train(self, model, scaler, train_number = 15):
+    """
+    Train on the train set using a model and a scaler.
+    
+    Parameters
+    ----------
+    model : sklearn.estimator
+      The estimator model to be trained
+      
+    scaler : sklearn.scaler
+      The scaler to be trained
+      
+    train_number : int
+      The size of train set for each class. (default by 15)
+      
+    Return
+    ------
+    float
+      The accuracy
+    """
     X_t = self.train_X[0][:train_number, :]
     y_t = self.train_y[0][:train_number]
     for i in range(1, len(self.train_X)):
@@ -146,6 +224,25 @@ class Dataset:
     return sum(model.predict(X_t) == y_t)/X_t.shape[0]
   
   def test(self, model, scaler, validation = True):
+    """
+    Test the performance of a given model on a validation set or test set.
+    
+    Parameters
+    ----------
+    model : sklearn.estimator
+      A trained model to be tested.
+    
+    scaler : sklearn.scaler
+      A accompanying scaler.
+      
+    validation : boolean
+      Whether to test on the validation set or test set. (default True)
+    
+    Returns
+    -------
+    float
+      The accuracy
+    """
     if validation: 
       X_tmp = self.validation_X
       y_tmp = self.validation_y
