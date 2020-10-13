@@ -18,8 +18,8 @@ def read_image(f):
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
   return img
             
-def show_image(data, label):
-  plt.imshow(data, interpolation='nearest')
+def show_image(img, label):
+  plt.imshow(img, interpolation='nearest')
   plt.title(label)
   plt.show()
 
@@ -70,8 +70,7 @@ class Dataset:
     self.test_X = []
     self.test_y = []
     self.labels = []
-    
-    
+  
     folders = os.listdir(repo)
     labels = [i.split(".")[1]  for i in folders]
     
@@ -85,7 +84,6 @@ class Dataset:
       # exclude the clutter class
       if i == 256 and no_clutter:
         continue
-        
       t = 0
       for j in image_names:
         image = read_image(current_folder + j)
@@ -100,7 +98,6 @@ class Dataset:
           tmp = np.vstack([tmp, added]) if tmp.size else added
           
           t += 1
-          
           if t >= samples:
             break
       self.data_X[i] = tmp

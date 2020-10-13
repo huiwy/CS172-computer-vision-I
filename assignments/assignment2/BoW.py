@@ -62,7 +62,6 @@ def generating_patches_rep_hand_coded(image, step, patch):
 def generate_kmeans_model(data, dim, patch_size, step_size, 
           number_of_samples, verbose = False):
     
-    print('number of images:', len(data))
     k = 0
     all_patches = []
     for i in range(0, len(data)):
@@ -75,11 +74,6 @@ def generate_kmeans_model(data, dim, patch_size, step_size,
             
         all_patches.append(patches)
         
-        if i % 500 == 0:
-            print(i, 'images finished.')
-    
-    
-    print("number of all patches", k)
     # make the patches an ndarray
     all_patches_arr = np.zeros([k, 128])
     k = 0
@@ -87,15 +81,13 @@ def generate_kmeans_model(data, dim, patch_size, step_size,
         l = i.shape[0]
         all_patches_arr[k:k+l, :] = i
         k += l
-    print(all_patches_arr.shape)
-    
+        
     # random sample the indices
     all_patches = np.random.choice(all_patches_arr.shape[0], number_of_samples, 
                                    replace = False)
     
     all_patches_arr = all_patches_arr[all_patches]
-    print("number of samples used in Kmeans clustering:", all_patches.shape[0])
-    print("Start training Kmeans model.")
+    
     kmeans = KMeans(n_clusters=dim, random_state=0,
                     verbose = verbose * 2).fit(all_patches_arr)
     return kmeans
