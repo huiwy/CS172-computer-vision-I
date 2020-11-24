@@ -129,18 +129,19 @@ class Dataset:
   def get_train_X(self):
     return self.train_X
   
-  def train(self, model, scaler, train_number = 15):
-    X_t = self.train_X[0][:train_number, :]
-    y_t = self.train_y[0][:train_number]
+  def train(self, model, scaler, training_number = 15, accuracy = True):
+    X_t = self.train_X[0][:training_number, :]
+    y_t = self.train_y[0][:training_number]
     for i in range(1, len(self.train_X)):
-      X_t = np.vstack((X_t, self.train_X[i][:train_number, :]))
-      y_t = np.concatenate((y_t, self.train_y[i][:train_number]))
+      X_t = np.vstack((X_t, self.train_X[i][:training_number, :]))
+      y_t = np.concatenate((y_t, self.train_y[i][:training_number]))
     if scaler:
       scaler.fit(X_t)
       X_t = scaler.transform(X_t)
       
     model.fit(X_t, y_t)
-    return sum(model.predict(X_t) == y_t)/X_t.shape[0]
+    if accuracy:
+      return sum(model.predict(X_t) == y_t)/X_t.shape[0]
   
   def test(self, model, scaler, validation = True):
     if validation: 

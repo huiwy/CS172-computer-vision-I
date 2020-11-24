@@ -1,5 +1,9 @@
-*.png
+/assignments/assignmnent2/256_ObjectCategories/*
+*.log
 *.jpg
-256_ObjectCategories/
-/assignments/assignment2/data_set
-/assignments/assignment2/spm_data_set
+*.png
+/assignments/assignmnent3/vlfeat-0.9.21/*
+/assignments/assignmnent4/dataset/*
+*.torch
+/Project/*
+*.npy

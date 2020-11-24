@@ -71,18 +71,18 @@ class UNet(nn.Module):
         enc3 = self.enc3(enc2)
         enc4 = self.enc4(enc3)
         center = self.center(enc4)
-        dec4 = self.dec4(torch.cat([center, F.upsample(enc4, center.size()[2:], mode='bilinear')], 1))
-        dec3 = self.dec3(torch.cat([dec4, F.upsample(enc3, dec4.size()[2:], mode='bilinear')], 1))
-        dec2 = self.dec2(torch.cat([dec3, F.upsample(enc2, dec3.size()[2:], mode='bilinear')], 1))
-        dec1 = self.dec1(torch.cat([dec2, F.upsample(enc1, dec2.size()[2:], mode='bilinear')], 1))
+        dec4 = self.dec4(torch.cat([center, F.upsample(enc4, center.size()[2:], mode='bilinear', align_corners=True)], 1))
+        dec3 = self.dec3(torch.cat([dec4, F.upsample(enc3, dec4.size()[2:], mode='bilinear', align_corners=True)], 1))
+        dec2 = self.dec2(torch.cat([dec3, F.upsample(enc2, dec3.size()[2:], mode='bilinear', align_corners=True)], 1))
+        dec1 = self.dec1(torch.cat([dec2, F.upsample(enc1, dec2.size()[2:], mode='bilinear', align_corners=True)], 1))
         final = self.final(dec1)
-        return F.upsample(final, x.size()[2:], mode='bilinear')
+        return F.upsample(final, x.size()[2:], mode='bilinear', align_corners=True)
 
 # High Quality Monocular Depth Estimation via Transfer Learning [https://arxiv.org/pdf/1812.11941v2.pdf]
 class UpSample(nn.Module):
     def __init__(self, in_c, out_c):
         super(UpSample, self).__init__()
-        self.upsample = nn.Upsample(scale_factor=2, mode = 'bilinear')
+        self.upsample = nn.Upsample(scale_factor=2, mode = 'bilinear', align_corners=True)
         self.conv1 = nn.Conv2d(in_c, out_c, kernel_size=3, padding=1)
         self.relu1 = nn.LeakyReLU(0.2)
         self.conv2 = nn.Conv2d(out_c, out_c, kernel_size=3, padding=1)
@@ -110,7 +110,8 @@ class DepthNet(nn.Module):
         self.upsample2 = UpSample(960, 416)
         self.upsample3 = UpSample(480, 208)
         self.upsample4 = UpSample(272, 104)
-        self.conv3 = nn.Conv2d(104, 104, 3, padding=1)
+        self.conv3 = nn.Conv2d(104, 1, 3, padding=1)
+        self.upsampleout = nn.Upsample(scale_factor=2, mode = 'bilinear', align_corners=True)
     def forward(self, x):
         c1 = self.conv1(x)
         c2 = self.block1(c1)
@@ -122,4 +123,4 @@ class DepthNet(nn.Module):
         x = self.upsample2(x, c3)
         x = self.upsample3(x, c2)
         x = self.upsample4(x, c1)
-        return self.conv3(x)
+        return self.upsampleout(self.conv3(x))

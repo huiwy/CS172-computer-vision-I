@@ -1,7 +1,7 @@
 import torch
 
 def train(model, trainloader, validationloader, epoches, optimizer, criterion, device):
-
+  best_val = 0
   val_l = len(validationloader)
   train_l = len(trainloader)
 
@@ -33,7 +33,7 @@ def train(model, trainloader, validationloader, epoches, optimizer, criterion, d
         output = model(image.float().to(device))
         loss = criterion(output, depth.view(size).float().to(device))
         val_loss += loss.item()
-
+        
     print('[%d, %5d] train loss: %.3f  validation loss: %.3f' %
         (epoch + 1, train_l, train_loss / train_l, val_loss / val_l))
   print("Train Finished.")
