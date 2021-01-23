@@ -1,8 +1,7 @@
 # cv-project
 The course project for CS172 Computer Vision in ShanghaiTech University, 2020 Fall.
 
-## Group quiz½»ÁËÂð
-### Members: Wenyang Hui, Haoyi Wu, Jiaqi Yang, Yifan Song, Mengyun Liu.
+## Members: Wenyang Hui, Haoyi Wu, Jiaqi Yang, Yifan Song, Mengyun Liu.
 
 # Resources
 
